@@ -1,5 +1,6 @@
 package com.adonkov.reminders.reminder;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,12 +36,12 @@ public class ReminderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ReminderDtos.Response create(@RequestBody ReminderDtos.CreateRequest request) {
+    public ReminderDtos.Response create(@Valid @RequestBody ReminderDtos.CreateRequest request) {
         return service.create(request);
     }
 
     @PutMapping("/{id}")
-    public ReminderDtos.Response update(@PathVariable Long id, @RequestBody ReminderDtos.UpdateRequest request) {
+    public ReminderDtos.Response update(@PathVariable Long id, @Valid @RequestBody ReminderDtos.UpdateRequest request) {
         return service.update(id, request);
     }
 
