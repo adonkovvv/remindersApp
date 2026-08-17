@@ -1,9 +1,13 @@
 package com.adonkov.reminders.reminder;
 
+import com.adonkov.reminders.common.PageResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.Instant;
 
 @Service
 public class ReminderService {
@@ -15,10 +19,17 @@ public class ReminderService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReminderDtos.Response> findAll() {
-        return repository.findAll().stream()
-                .map(ReminderDtos.Response::from)
-                .toList();
+    public PageResponse<ReminderDtos.Response> search(Boolean completed,
+                                                      Instant dueBefore,
+                                                      Instant dueAfter,
+                                                      Pageable pageable) {
+        Specification<Reminder> spec = Specification
+                .allOf(ReminderSpecifications.completedIs(completed),
+                        ReminderSpecifications.dueBefore(dueBefore),
+                        ReminderSpecifications.dueAfter(dueAfter));
+
+        Page<Reminder> page = repository.findAll(spec, pageable);
+        return PageResponse.of(page, ReminderDtos.Response::from);
     }
 
     @Transactional(readOnly = true)
