@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
@@ -16,7 +17,7 @@ import java.util.Optional;
 public class JwtService {
 
     private final SecretKey key;
-    private final java.time.Duration expiration;
+    private final Duration expiration;
 
     public JwtService(JwtProperties properties) {
         this.key = Keys.hmacShaKeyFor(properties.secret().getBytes(StandardCharsets.UTF_8));
@@ -47,10 +48,7 @@ public class JwtService {
         }
     }
 
-    public Duration expiry() {
-        return expiration;
-    }
-
-    public record Duration() {
+    public long expiresInSeconds() {
+        return expiration.toSeconds();
     }
 }
