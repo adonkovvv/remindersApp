@@ -1,5 +1,6 @@
 package com.adonkov.reminders.common;
 
+import com.adonkov.reminders.auth.AuthException;
 import com.adonkov.reminders.reminder.ReminderNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -17,6 +18,14 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleNotFound(ReminderNotFoundException ex) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         problem.setTitle("Reminder not found");
+        problem.setDetail(ex.getMessage());
+        return problem;
+    }
+
+    @ExceptionHandler(AuthException.class)
+    public ProblemDetail handleAuth(AuthException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(ex.getStatus());
+        problem.setTitle("Authentication failed");
         problem.setDetail(ex.getMessage());
         return problem;
     }

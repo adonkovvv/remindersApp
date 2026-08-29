@@ -35,14 +35,13 @@ public class JwtService {
                 .compact();
     }
 
-    public Optional<Long> extractUserId(String token) {
+    public Optional<Claims> parse(String token) {
         try {
-            Claims claims = Jwts.parser()
+            return Optional.of(Jwts.parser()
                     .verifyWith(key)
                     .build()
                     .parseSignedClaims(token)
-                    .getPayload();
-            return Optional.of(Long.valueOf(claims.getSubject()));
+                    .getPayload());
         } catch (JwtException | IllegalArgumentException ex) {
             return Optional.empty();
         }
