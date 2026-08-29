@@ -9,6 +9,10 @@ final class ReminderSpecifications {
     private ReminderSpecifications() {
     }
 
+    static Specification<Reminder> ownedBy(Long userId) {
+        return (root, query, cb) -> cb.equal(root.get("user").get("id"), userId);
+    }
+
     static Specification<Reminder> completedIs(Boolean completed) {
         if (completed == null) {
             return null;
