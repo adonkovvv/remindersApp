@@ -1,6 +1,7 @@
 package com.adonkov.reminders.reminder;
 
 import com.adonkov.reminders.common.PageResponse;
+import com.adonkov.reminders.user.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,18 +14,22 @@ import java.time.Instant;
 public class ReminderService {
 
     private final ReminderRepository repository;
+    private final UserRepository users;
 
-    public ReminderService(ReminderRepository repository) {
+    public ReminderService(ReminderRepository repository, UserRepository users) {
         this.repository = repository;
+        this.users = users;
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<ReminderDtos.Response> search(Boolean completed,
+    public PageResponse<ReminderDtos.Response> search(Long userId,
+                                                      Boolean completed,
                                                       Instant dueBefore,
                                                       Instant dueAfter,
                                                       Pageable pageable) {
         Specification<Reminder> spec = Specification
-                .allOf(ReminderSpecifications.completedIs(completed),
+                .allOf(ReminderSpecifications.ownedBy(userId),
+                        ReminderSpecifications.completedIs(completed),
                         ReminderSpecifications.dueBefore(dueBefore),
                         ReminderSpecifications.dueAfter(dueAfter));
 
@@ -33,19 +38,24 @@ public class ReminderService {
     }
 
     @Transactional(readOnly = true)
-    public ReminderDtos.Response findById(Long id) {
-        return ReminderDtos.Response.from(load(id));
+    public ReminderDtos.Response findById(Long userId, Long id) {
+        return ReminderDtos.Response.from(load(userId, id));
     }
 
     @Transactional
-    public ReminderDtos.Response create(ReminderDtos.CreateRequest request) {
-        Reminder reminder = new Reminder(request.title(), request.description(), request.dueAt());
+    public ReminderDtos.Response create(Long userId, ReminderDtos.CreateRequest request) {
+        Reminder reminder = new Reminder(
+                users.getReferenceById(userId),
+                request.title(),
+                request.description(),
+                request.dueAt());
+
         return ReminderDtos.Response.from(repository.save(reminder));
     }
 
     @Transactional
-    public ReminderDtos.Response update(Long id, ReminderDtos.UpdateRequest request) {
-        Reminder reminder = load(id);
+    public ReminderDtos.Response update(Long userId, Long id, ReminderDtos.UpdateRequest request) {
+        Reminder reminder = load(userId, id);
         if (request.title() != null) {
             reminder.setTitle(request.title());
         }
@@ -62,11 +72,23 @@ public class ReminderService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        repository.delete(load(id));
+    public ReminderDtos.Response complete(Long userId, Long id) {
+        Reminder reminder = load(userId, id);
+        reminder.setCompleted(true);
+        return ReminderDtos.Response.from(reminder);
     }
 
-    private Reminder load(Long id) {
-        return repository.findById(id).orElseThrow(() -> new ReminderNotFoundException(id));
+    @Transactional
+    public void delete(Long userId, Long id) {
+        repository.delete(load(userId, id));
+    }
+
+    /**
+     * Reminders owned by someone else are reported as missing rather than forbidden,
+     * so the API doesn't leak which ids exist.
+     */
+    private Reminder load(Long userId, Long id) {
+        return repository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ReminderNotFoundException(id));
     }
 }
