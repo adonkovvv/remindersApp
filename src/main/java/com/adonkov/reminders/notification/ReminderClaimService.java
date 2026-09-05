@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -82,10 +81,5 @@ public class ReminderClaimService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordFailure(Long reminderId) {
         reminders.findById(reminderId).ifPresent(Reminder::markNotificationFailed);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Reminder> all(Function<ReminderRepository, List<Reminder>> query) {
-        return query.apply(reminders);
     }
 }
