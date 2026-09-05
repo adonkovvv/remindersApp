@@ -12,7 +12,8 @@ public record NotificationProperties(
         int workers,
         int queueCapacity,
         int maxAttempts,
-        Duration defaultSnooze
+        Duration defaultSnooze,
+        Duration claimTimeout
 ) {
     public NotificationProperties {
         if (workers < 1) {

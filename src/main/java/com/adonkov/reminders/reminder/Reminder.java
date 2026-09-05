@@ -163,6 +163,15 @@ public class Reminder {
     }
 
     /**
+     * Marks this reminder as taken by a worker. Paired with the {@code for update skip locked}
+     * claim query, this is what stops two instances sending the same reminder twice.
+     */
+    public void claim(String instanceId, Instant when) {
+        this.claimedBy = instanceId;
+        this.claimedAt = when;
+    }
+
+    /**
      * Marks this reminder as delivered. A repeating reminder rolls forward to its
      * next occurrence and becomes pending again; a one-off stays notified.
      */
