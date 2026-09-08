@@ -2,6 +2,7 @@ package com.adonkov.reminders.common;
 
 import com.adonkov.reminders.auth.AuthException;
 import com.adonkov.reminders.reminder.ReminderNotFoundException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,6 +27,26 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleAuth(AuthException ex) {
         ProblemDetail problem = ProblemDetail.forStatus(ex.getStatus());
         problem.setTitle("Authentication failed");
+        problem.setDetail(ex.getMessage());
+        return problem;
+    }
+
+    /**
+     * Two people (or two tabs) edited the same reminder at once and the second write lost.
+     * Surfaced as a conflict so the client can refetch rather than silently clobbering.
+     */
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ProblemDetail handleConcurrentEdit(OptimisticLockingFailureException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problem.setTitle("Conflicting update");
+        problem.setDetail("This reminder was changed by someone else. Reload it and try again.");
+        return problem;
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleBadArgument(IllegalArgumentException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Bad request");
         problem.setDetail(ex.getMessage());
         return problem;
     }

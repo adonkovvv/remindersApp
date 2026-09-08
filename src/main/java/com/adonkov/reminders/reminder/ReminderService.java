@@ -1,6 +1,7 @@
 package com.adonkov.reminders.reminder;
 
 import com.adonkov.reminders.common.PageResponse;
+import com.adonkov.reminders.notification.NotificationProperties;
 import com.adonkov.reminders.user.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 
 @Service
@@ -15,10 +17,14 @@ public class ReminderService {
 
     private final ReminderRepository repository;
     private final UserRepository users;
+    private final NotificationProperties notificationProperties;
 
-    public ReminderService(ReminderRepository repository, UserRepository users) {
+    public ReminderService(ReminderRepository repository,
+                           UserRepository users,
+                           NotificationProperties notificationProperties) {
         this.repository = repository;
         this.users = users;
+        this.notificationProperties = notificationProperties;
     }
 
     @Transactional(readOnly = true)
@@ -49,6 +55,7 @@ public class ReminderService {
                 request.title(),
                 request.description(),
                 request.dueAt());
+        reminder.setRecurrence(request.recurrenceOrNone());
 
         return ReminderDtos.Response.from(repository.save(reminder));
     }
@@ -68,6 +75,24 @@ public class ReminderService {
         if (request.completed() != null) {
             reminder.setCompleted(request.completed());
         }
+        if (request.recurrence() != null) {
+            reminder.setRecurrence(request.recurrence());
+        }
+        return ReminderDtos.Response.from(reminder);
+    }
+
+    @Transactional
+    public ReminderDtos.Response snooze(Long userId, Long id, ReminderDtos.SnoozeRequest request) {
+        Duration by = request == null || request.by() == null
+                ? notificationProperties.defaultSnooze()
+                : request.by();
+
+        if (by.isNegative() || by.isZero()) {
+            throw new IllegalArgumentException("Snooze duration must be positive");
+        }
+
+        Reminder reminder = load(userId, id);
+        reminder.snooze(by);
         return ReminderDtos.Response.from(reminder);
     }
 

@@ -67,6 +67,13 @@ public class ReminderController {
         return service.complete(user.id(), id);
     }
 
+    @PostMapping("/{id}/snooze")
+    public ReminderDtos.Response snooze(@AuthenticationPrincipal AuthenticatedUser user,
+                                        @PathVariable Long id,
+                                        @RequestBody(required = false) ReminderDtos.SnoozeRequest request) {
+        return service.snooze(user.id(), id, request);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable Long id) {
