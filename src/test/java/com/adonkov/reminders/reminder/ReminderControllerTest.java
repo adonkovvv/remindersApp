@@ -48,7 +48,8 @@ class ReminderControllerTest {
 
     private static ReminderDtos.Response sample(long id) {
         Instant due = Instant.now().plus(1, ChronoUnit.DAYS);
-        return new ReminderDtos.Response(id, "Pay rent", "before the 5th", due, false, Instant.now(), Instant.now());
+        return new ReminderDtos.Response(id, "Pay rent", "before the 5th", due, false,
+                Recurrence.NONE, null, Instant.now(), Instant.now());
     }
 
     @Test
@@ -82,7 +83,7 @@ class ReminderControllerTest {
         Instant due = Instant.now().plus(2, ChronoUnit.DAYS);
         given(service.create(eq(USER_ID), any())).willReturn(sample(5L));
 
-        var body = new ReminderDtos.CreateRequest("Pay rent", "before the 5th", due);
+        var body = new ReminderDtos.CreateRequest("Pay rent", "before the 5th", due, Recurrence.DAILY);
 
         mockMvc.perform(post("/api/reminders").with(asUser()).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,7 +94,7 @@ class ReminderControllerTest {
 
     @Test
     void rejectsBlankTitle() throws Exception {
-        var body = new ReminderDtos.CreateRequest("  ", null, Instant.now().plus(1, ChronoUnit.DAYS));
+        var body = new ReminderDtos.CreateRequest("  ", null, Instant.now().plus(1, ChronoUnit.DAYS), null);
 
         mockMvc.perform(post("/api/reminders").with(asUser()).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -104,7 +105,7 @@ class ReminderControllerTest {
 
     @Test
     void rejectsDueDateInThePast() throws Exception {
-        var body = new ReminderDtos.CreateRequest("Pay rent", null, Instant.now().minus(1, ChronoUnit.DAYS));
+        var body = new ReminderDtos.CreateRequest("Pay rent", null, Instant.now().minus(1, ChronoUnit.DAYS), null);
 
         mockMvc.perform(post("/api/reminders").with(asUser()).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
