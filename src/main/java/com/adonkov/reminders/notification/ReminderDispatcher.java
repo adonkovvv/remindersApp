@@ -55,7 +55,8 @@ public class ReminderDispatcher {
      * {@code fixedDelay} measures from the end of the previous run, so rounds can't overlap
      * even when one takes longer than the interval.
      */
-    @Scheduled(fixedDelayString = "${app.notifications.scan-interval}")
+    @Scheduled(fixedDelayString = "${app.notifications.scan-interval}",
+            initialDelayString = "${app.notifications.initial-delay}")
     public void dispatchDue() {
         try {
             int sent = runRound();

@@ -8,6 +8,7 @@ import java.time.Duration;
 public record NotificationProperties(
         boolean enabled,
         Duration scanInterval,
+        Duration initialDelay,
         int batchSize,
         int workers,
         int queueCapacity,
