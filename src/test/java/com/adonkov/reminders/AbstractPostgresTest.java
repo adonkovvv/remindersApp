@@ -1,6 +1,7 @@
 package com.adonkov.reminders;
 
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -11,6 +12,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * H2 would quietly do the wrong thing for all three.
  */
 @Testcontainers
+@ActiveProfiles("test")
 public abstract class AbstractPostgresTest {
 
     @Container

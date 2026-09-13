@@ -136,6 +136,12 @@ class AuthFlowIT extends AbstractPostgresTest {
     }
 
     @Test
+    void anonymousRequestsAreRejected() throws Exception {
+        mockMvc.perform(get("/api/reminders"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void garbageTokenIsRejected() throws Exception {
         mockMvc.perform(get("/api/reminders")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer not-a-real-token"))

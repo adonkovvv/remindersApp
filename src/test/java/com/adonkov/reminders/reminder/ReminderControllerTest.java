@@ -64,12 +64,6 @@ class ReminderControllerTest {
     }
 
     @Test
-    void rejectsAnonymousRequests() throws Exception {
-        mockMvc.perform(get("/api/reminders"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
     void returns404WhenMissing() throws Exception {
         willThrow(new ReminderNotFoundException(99L)).given(service).findById(eq(USER_ID), eq(99L));
 
