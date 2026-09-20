@@ -45,6 +45,16 @@ public class AuthService {
         return issueFor(user);
     }
 
+    @Transactional(readOnly = true)
+    public AuthDtos.ProfileResponse profile(Long userId) {
+        User user = users.findById(userId)
+                .orElseThrow(() -> new AuthException("Account no longer exists",
+                        org.springframework.http.HttpStatus.UNAUTHORIZED));
+
+        return new AuthDtos.ProfileResponse(
+                user.getId(), user.getEmail(), user.getDisplayName(), user.getCreatedAt());
+    }
+
     private AuthDtos.TokenResponse issueFor(User user) {
         String token = jwtService.issue(user.getId(), user.getEmail());
         return AuthDtos.TokenResponse.bearer(token, jwtService.expiresInSeconds());

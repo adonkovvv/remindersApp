@@ -1,6 +1,8 @@
 package com.adonkov.reminders.auth;
 
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,11 @@ public class AuthController {
     @PostMapping("/register")
     public AuthDtos.TokenResponse register(@Valid @RequestBody AuthDtos.RegisterRequest request) {
         return authService.register(request);
+    }
+
+    @GetMapping("/me")
+    public AuthDtos.ProfileResponse me(@AuthenticationPrincipal AuthenticatedUser user) {
+        return authService.profile(user.id());
     }
 
     @PostMapping("/login")
