@@ -1,5 +1,6 @@
 package com.adonkov.reminders.notification;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -14,7 +15,7 @@ public class EmailNotificationSender implements NotificationSender {
     private final String from;
 
     public EmailNotificationSender(JavaMailSender mailSender,
-                                   @org.springframework.beans.factory.annotation.Value("${app.notifications.from:noreply@localhost}") String from) {
+                                  @Value("${app.notifications.from:noreply@localhost}") String from) {
         this.mailSender = mailSender;
         this.from = from;
     }
