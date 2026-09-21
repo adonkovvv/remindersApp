@@ -2,6 +2,7 @@ package com.adonkov.reminders.auth;
 
 import com.adonkov.reminders.user.User;
 import com.adonkov.reminders.user.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +49,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public AuthDtos.ProfileResponse profile(Long userId) {
         User user = users.findById(userId)
-                .orElseThrow(() -> new AuthException("Account no longer exists",
-                        org.springframework.http.HttpStatus.UNAUTHORIZED));
+                .orElseThrow(() -> new AuthException("Account no longer exists", HttpStatus.UNAUTHORIZED));
 
         return new AuthDtos.ProfileResponse(
                 user.getId(), user.getEmail(), user.getDisplayName(), user.getCreatedAt());
