@@ -32,9 +32,12 @@ database. Override through environment variables for anything real:
 | `DB_USERNAME` | `postgres` | |
 | `DB_PASSWORD` | `postgres` | |
 | `JWT_SECRET` | a dev placeholder | **Must** be replaced outside local dev; at least 32 bytes |
+| `CORS_ORIGINS` | `http://localhost:3000,http://localhost:5173` | Comma separated |
 
 Notification tuning lives under `app.notifications.*` in `application.properties`:
 scan interval, batch size, worker count, queue capacity, retry ceiling, claim timeout.
+
+Interactive docs are at `http://localhost:8080/swagger-ui.html` once the app is up.
 
 ## API
 
@@ -45,7 +48,10 @@ All `/api/reminders/**` routes need `Authorization: Bearer <token>`.
 ```
 POST /api/auth/register    {email, password, displayName?}  -> {token, tokenType, expiresIn}
 POST /api/auth/login       {email, password}                -> {token, tokenType, expiresIn}
+GET  /api/auth/me                                           -> {id, email, displayName, createdAt}
 ```
+
+`/me` needs the token; the other two are open.
 
 ### Reminders
 
