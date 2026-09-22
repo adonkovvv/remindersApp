@@ -106,10 +106,11 @@ a losing write surfaces as `409` rather than silently overwriting.
 ## Tests
 
 ```bash
-mvn test
+mvn test      # unit and web-slice tests, no Docker needed
+mvn verify    # the above plus the *IT integration tests
 ```
 
-Integration tests run against a real PostgreSQL container via Testcontainers, so Docker
-needs to be available. Postgres-specific behaviour — `skip locked`, partial indexes, the
+The integration tests run against a real PostgreSQL container via Testcontainers, so
+`mvn verify` needs Docker available. Postgres-specific behaviour — `skip locked`, partial indexes, the
 `lower(email)` unique index — is the whole point of those tests, and H2 would quietly do
 the wrong thing for all three.
