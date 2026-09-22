@@ -1,6 +1,7 @@
 package com.adonkov.reminders.reminder;
 
 import com.adonkov.reminders.auth.AuthenticatedUser;
+import com.adonkov.reminders.auth.JwtService;
 import com.adonkov.reminders.common.PageResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,14 @@ class ReminderControllerTest {
 
     @MockitoBean
     private ReminderService service;
+
+    /**
+     * JwtAuthenticationFilter is a Filter, so the web slice pulls it in, but the JwtService
+     * it depends on is a @Service and gets filtered out. These tests put the principal on
+     * the context directly, so the filter just needs something to construct with.
+     */
+    @MockitoBean
+    private JwtService jwtService;
 
     private static RequestPostProcessor asUser() {
         var principal = new AuthenticatedUser(USER_ID, "ivan@example.com");
